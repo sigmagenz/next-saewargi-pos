@@ -13,4 +13,18 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
+eslintConfig.push(
+  compat.config({
+    rules: {
+      "react-hooks/exhaustive-deps": "off",
+      "react/jsx-key": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "warn",
+      "react/react-in-jsx-scope": "off",
+      "@next/next/no-img-element": "off",
+    },
+  })
+);
+
 export default eslintConfig;
