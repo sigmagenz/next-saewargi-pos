@@ -28,6 +28,7 @@ import {
 } from "@/constants/auth-constant";
 import { login } from "../action";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export const Login = () => {
   const form = useForm<LoginForm>({
@@ -53,6 +54,7 @@ export const Login = () => {
 
   useEffect(() => {
     if (loginState?.status === "error") {
+      toast.error('Login failed: ' + loginState.errors?._form?.[0] || 'Unknown error');
       startTransition(() => {
         loginAction(null);
       });
@@ -117,7 +119,7 @@ export const Login = () => {
                   "Login"
                 )}
               </Button>
-              
+
               <FormDescription className="text-sm text-muted-foreground mt-2">
                 Don't have an account?{" "}
                 <a href="/register" className="text-primary">
