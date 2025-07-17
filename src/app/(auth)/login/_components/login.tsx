@@ -18,22 +18,47 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LoginForm, loginSchema } from "@/validations/auth-validation";
-import React from "react";
+import { LoginForm, loginFormSchema } from "@/validations/auth-validation";
+import React, { startTransition, useActionState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { INITIAL_LOGIN_FORM } from "@/constants/auth-constant";
+import {
+  INITIAL_LOGIN_FORM,
+  INITIAL_STATE_LOGIN_FORM,
+} from "@/constants/auth-constant";
+import { login } from "../action";
+import { Loader2 } from "lucide-react";
 
 export const Login = () => {
   const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginFormSchema),
     defaultValues: INITIAL_LOGIN_FORM,
   });
 
+  const [loginState, loginAction, isPendingLogin] = useActionState(
+    login,
+    INITIAL_STATE_LOGIN_FORM
+  );
+
   const onSubmit = form.handleSubmit(async (data) => {
-    console.log("Form submitted with data:", data);
-    // Handle login logic here, e.g., API call
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    startTransition(() => {
+      loginAction(formData);
+    });
   });
+
+  useEffect(() => {
+    if (loginState?.status === "error") {
+      startTransition(() => {
+        loginAction(null);
+      });
+    }
+  }, [loginState]);
+
   return (
     <>
       <Card>
@@ -86,8 +111,13 @@ export const Login = () => {
               />
 
               <Button type="submit" className="w-full mt-4">
-                Login
+                {isPendingLogin ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Login"
+                )}
               </Button>
+              
               <FormDescription className="text-sm text-muted-foreground mt-2">
                 Don't have an account?{" "}
                 <a href="/register" className="text-primary">
